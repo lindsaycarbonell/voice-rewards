@@ -1,7 +1,26 @@
         Parse.initialize("aLexOkyvqhOkmMfiqi3a8KQd0LxjCFk4d5wzlHyZ", "TRMrtFBvo1lh01ZheveQMRSoP53CRBVVUtHh3SVp");
         //Parse.initialize("qLzYhfH37DNpbtCeUttsGO6yEaT6dVRNpy10gZzK", "DxpkbfCURfqlJ6Faq2ZxRbxvhl37dIFeykVDzm38");
 
+//must needs global
+var currentUser = Parse.User.current();
+
+//create a new subclass of Parse.Object
+var Story = Parse.Object.extend("Story");
+//register the subclass
+Parse.Object.registerSubclass('Story', Story);
+//create a new instance of that class
+var story = new Story();
+
         $(document).ready(function(){
+            //get the filename of the current location
+            var location = document.location.href.match(/[^\/]+$/)[0];
+            //redirect already logged-in user
+
+            if(currentUser && location!="home.html"){
+                window.location.href = "home.html";
+            }else{
+                //stay on login page
+            }
 
             $('.form-new').hide();
             $('#login-toggle').css("opacity","0.5");
@@ -21,7 +40,7 @@
                     $('.form-login').hide();
                     $('.form-new').show();
                 });
-                
+
                 //for pressing enter to login
 //                $(document).one("keypress",(function(e){
 //                        if($('.form-new').is(":visible")){
@@ -34,7 +53,7 @@
 //                            alert('Login enter!');
 //                            }
 //                        }
-//                        
+//
 //                    });
 
             });
@@ -69,7 +88,7 @@
             //loggers
             console.log("username: " + username);
             console.log("password: " + password);
-            console.log("email: " + email); 
+            console.log("email: " + email);
 
             //parse that shit
             var user = new Parse.User();
@@ -95,7 +114,6 @@
             console.log("log in");
 
             //check for current user
-            var currentUser = Parse.User.current();
             if (currentUser) {
                 // do stuff with the user
                 console.log("current user");
@@ -116,9 +134,9 @@
                     alert("Login failed! Please try again.");
                     $('#log-name').val('');
                     $('#log-pass').val('');
-                }   
+                }
 
-            });   
+            });
 
         }
 
@@ -126,13 +144,54 @@
     $('#btn-logout').click(function(){
             logOut();
         });
-        
-    function logOut(){
 
+    function logOut(){
             Parse.User.logOut();
-            var currentUser = Parse.User.current();
-            console.log(currentUser);
+            console.log("current user: " + currentUser);
+            window.location.href = "index.html";
+
         }
+
+        function newStory(){
+
+          // var NewStory = Parse.Object.extend("Story",{
+          //   //Instance methods
+          //   initialize: function (attrs, options){
+          //     this.genre = "fiction";
+          //   }
+          // });
+          //var story = new Story();
+          //alert(newStory);
+
+          story.set("genre", "fiction");
+          story.set("author", "lindsay");
+          story.set("wordCount", 500);
+          story.set("mainText", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas quis varius felis, eu facilisis massa. Nulla facilisi. Vivamus id ipsum in tortor vulputate posuere. Aenean augue nibh, mollis eu metus in, sollicitudin posuere enim. Vestibulum blandit ac magna auctor venenatis. Phasellus vel velit vel ante condimentum lobortis et non dui. Vivamus urna ex, pretium quis hendrerit id, sodales ac lacus. Sed eu eros tempus augue eleifend dictum. Sed id sollicitudin augue. Phasellus egestas ex sed augue condimentum, a egestas diam placerat. Suspendisse pellentesque enim vitae turpis iaculis, vel bibendum arcu facilisis. Morbi pretium convallis erat quis eleifend.");
+
+          story.save(null, {
+            success: function(story){
+              alert('New object created with objectId: ' + story.id);
+            },
+            error: function(gameScore, error){
+              alert('Failed to create new object, with error code: ' + error.message);
+            }
+          });
+
+
+
+        }
+
+        function saveStory(){
+          var relation = currentUser.relation("story");
+          relation.add(story);
+          currentUser.save();
+
+        }
+
+
+
+
+
 
         //    var TestObject = Parse.Object.extend("TestObject");
         //    var testObject = new TestObject();
